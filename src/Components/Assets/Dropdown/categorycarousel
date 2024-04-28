@@ -1,0 +1,42 @@
+import React from 'react';
+import { Carousel } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Your category components
+import All from './All'; // Ensure these components are correctly imported
+import Books from './Books';
+import Supplies from './Supplies';
+import Apparel from './Apparel';
+import SportsLeisure from './SportsLeisure';
+import Kitchen from './Kitchen';
+import Electronics from './Electronics';
+
+const CategoryCarousel = () => {
+  return (
+    <Carousel className="d-block d-md-none"> {/* Show as carousel only on md screens and hide on larger screens */}
+      <Carousel.Item>
+        <a href="#"><All /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><Books /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><Supplies /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><Apparel /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><SportsLeisure /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><Kitchen /></a>
+      </Carousel.Item>
+      <Carousel.Item>
+        <a href="#"><Electronics /></a>
+      </Carousel.Item>
+    </Carousel>
+  );
+};
+
+export default CategoryCarousel;

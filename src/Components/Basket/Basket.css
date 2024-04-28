@@ -1,0 +1,60 @@
+img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.item-list {
+    display: flex;
+    padding: 20px;
+
+}
+.item-list ul {
+    flex: 10%;
+    list-style: none;
+    text-align: center;
+}
+.item-header {
+    background-color: lightgray;
+    width: 50%;
+    margin-left: 300px;
+    border: 1px solid black;
+}
+
+p {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+.checkout {
+   float: right;
+   margin-right: 300px;
+   margin-bottom: 20px;
+
+}   
+
+.continue-shopping {
+    float: left;
+    margin-left: 300px;
+    margin-top: 20px;
+}
+
+button {
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.checkout button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}

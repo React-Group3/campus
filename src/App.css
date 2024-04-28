@@ -1,0 +1,31 @@
+* {
+
+  font-family: 'Roboto', sans-serif;
+}
+.logo span {
+  color: #FF0000;
+}
+
+h2 {
+  font-size: 1.3rem
+}
+
+.register-form {
+  display: flex;
+  width: 300px;
+  margin: 0 auto;
+  display: block;
+}
+.register-form input{
+  border-radius: 7px;
+  height: 40px;
+  width: 300px;
+}
+
+.register-form button{
+  float: right;
+  margin-top: 20px;
+  border-radius: 7px;
+  height: 40px;
+  width: 100px;
+}

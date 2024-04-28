@@ -1,0 +1,104 @@
+.logo span {
+    color: red;
+    font-weight: bold;
+}
+
+.logo {
+    width: 219px;
+    height: 102px;
+    margin: 0 auto;
+    display: block;
+    margin-left: 103px;
+    margin-right: 2px;
+    margin-top: 2px;
+    margin-bottom: 50px;
+  }
+
+* {
+    font-family: 'Poppins', sans-serif;
+}
+.header {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 5px 10%;
+    background-color: white;
+    underline: 1px solid #f2f2f2;
+    border-bottom: 1px solid black;
+    flex-wrap: wrap;
+    align-content: stretch;
+}
+
+.hello {
+    fornt-size: 10px;
+}
+
+.header a {
+    text-decoration: none;
+    color: black;
+}
+
+.navbar {
+    font-size: 10px;
+    display: flex;
+    align-items: baseline;
+    padding: 0 10%;
+    underline: 1px solid #f2f2f2;
+    margin-bottom: -90px;
+    margin-top: -10px;
+    margin-right: 213px;
+
+}
+
+#search {
+    height: 43px;
+    width: 473px;
+    border: 3px solid black;
+    border-radius: 66px;
+    padding: 20px;
+    margin-bottom: 80px;
+    align-items: center;
+    margin-right: -60px;
+    
+}
+.search-button {
+    color: white;
+    background-color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.navbar a {
+    text-decoration: none;
+    color: black;
+    margin: 0 20px;
+}
+ul {
+    display: flex;
+    list-style: none;
+    text-align: center;
+}
+ul li {
+    display: inline;
+    margin: 0 20px;
+}
+categories a {
+    display: inline;
+    text-decoration: none;
+    color: white;
+}
+
+categories {
+    display: flex;
+    padding: 10px 10%;
+    background-color: teal;
+    height: 50px;
+}
+
+h2 {
+    margin: 0 10%;
+    padding: 20px;
+    font-size: 10px;
+}
