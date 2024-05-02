@@ -31,7 +31,6 @@ const Footer = () => {
           <Col md={4}>
             <h5>Join Our Newsletter</h5>
             <p>Drop your Email below to get update, promotion, coupons & more.</p>
-          
           </Col>
         </Row>
       </Container>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Navbar, Nav, Form, FormControl, Button, Container, Row, Col } from 'react-bootstrap';
+import { Navbar, Nav, Form, FormControl, Button, Container, Row, Col, Modal } from 'react-bootstrap';
 import { FaUser, FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
+import { Card} from 'react-bootstrap';
+
 // Category components
 import All from '../Assets/Dropdown/All';
 import Books from '../Assets/Dropdown/Books';
@@ -11,20 +13,24 @@ import SportsLeisure from '../Assets/Dropdown/Sports&Leisure';
 import Kitchen from '../Assets/Dropdown/Kitchen';
 import Electronics from '../Assets/Dropdown/Electronics';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { type } from '@testing-library/user-event/dist/type';
 
 export const NavbarHeader = () => {
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+
   const location = useLocation();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     const postData = {
       search: searchInput,
     };
-    console.log('Form Data:', postData);
-    setSearchResults(PostData2(postData)); 
+    try {
+      const results = await PostData2(postData);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Failed to fetch search results:', error);
+    }
   };
 
   return (
@@ -46,6 +52,7 @@ export const NavbarHeader = () => {
               <Nav.Link href="/profilepage">Profile <FaUser /></Nav.Link>
               <Nav.Link href="/Basket">Cart <FaShoppingCart /></Nav.Link>
             </Nav>
+              {/* Nav Links */}
             <Form className="d-flex" onSubmit={handleSearch}>
               <FormControl
                 type="search"
@@ -54,15 +61,16 @@ export const NavbarHeader = () => {
                 aria-label="Search"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
-                style={{ width: '500px' }} // Increase the width here
+                style={{ width: '500px' }}
               />
               <Button variant="outline-success" type="submit"><FaSearch /></Button>
             </Form>
+            
+            
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {location.pathname !== '/profilepage' && ( // Hide the category bar on the profile page
-        <Container style={{ backgroundColor: 'teal' }} id="itembar">
+      <Container style={{ backgroundColor: 'teal' }} id="itembar">
         <Row>
           <Col xs={6} md={2}><a href="#"><All /></a></Col>
           <Col xs={6} md={2}><a href="#"><Books /></a></Col>
@@ -72,63 +80,54 @@ export const NavbarHeader = () => {
           <Col xs={6} md={2}><a href="#"><Electronics /></a></Col>
         </Row>
       </Container>
-      
-      )}
+      {location.pathname !== '/profilepage' && <CategoryBar />}
       <Container>
-          <div>
-            <h1>{searchResults.Name}</h1>
-            <h2>{searchResults.Price}</h2>
-            <h3>{searchResults.Description}</h3>
-            <h4>{searchResults.Category}</h4>
-            <h5>{searchResults.ProductID}</h5>
-          </div>
+        {searchResults.map(result => (
+          <Card key={result.ProductID} style={{ width: '18rem' }}>
+            <Card.Img variant="top" src={'data:image/jpeg;base64,${result.Image1}'}/>
+            <Card.Body>
+            <Card.Title>{result.Name}</Card.Title>
+            <p>{result.Price}</p>
+            <Card.Text>
+              {result.Description}
+              {result.Category}
+            </Card.Text>
+            <Button variant="primary">Add to Cart</Button>
+            </Card.Body>
+          </Card>
+        ))}
       </Container>
     </>
   );
 };
-
 export default NavbarHeader;
 
-export function PostData2(data) {
-    console.log("data: " + JSON.stringify(data));
-    
-    fetch('../backend/search.php', {
+const CategoryBar = () => (
+  <Container style={{ backgroundColor: 'teal' }} id="itembar">
+    <Row>
+    </Row>
+  </Container>
+);
+
+async function PostData2(data) {
+  try {
+    const response = await fetch('../backend/search.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        "mode": "cors",
-        'accept': 'application/json',
+        'Accept': 'application/json',
       },
-      body: JSON.stringify(data)
-    })
-    .then(function(response) {
-      if (!response.ok) {
-        console.log('bad Status code from server');
-        throw new Error('Bad status code from server');
-      }
-      else {
-        console.log(response.body);
-      }
-      console.log(response.text);
-      return response.json();
-    })
-    .then(function(data) {
-      console.log(data);
-      const dataArray = Array.isArray(data) ? data : [data];
-      console.log(dataArray);
-
-      for (var i = 0; i < dataArray.length; i++) {
-        var item = dataArray[i];
-        console.log(item);
-        console.log(item.Name);
-        console.log(item.Price);
-        console.log(item.Description);
-        console.log(item.Category);
-        console.log(item.ProductID);
-      }
-      return dataArray;
-    //data:image/jpeg:base64
-
+      body: JSON.stringify(data),
     });
 
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const json = await response.json();
+    return Array.isArray(json) ? json : [json];
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error; // rethrow the error for further handling
+  }
 }
