@@ -10,12 +10,14 @@ import AddItem from './pages/additem/additem';
 import SearchResults from './Components/SearchResults/SearchResults.jsx';
 // import OrderConfirmation from './pages/orderconfirmation/orderconfirmation';<Route path="/orderconfirm" element = {<OrderConfirmation />} />
 import Seller from './pages/seller/seller.jsx';
+import { ProductProvider } from './contexts/ProductContext';
+
 import './App.css';
 
 
 function App() {
   return (
-  
+    <ProductProvider>
       <div>
         <BrowserRouter>
         <Routes>
@@ -32,6 +34,7 @@ function App() {
         </Routes>
         </BrowserRouter>
       </div>
+      </ProductProvider>
   );
 }
 
