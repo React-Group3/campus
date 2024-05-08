@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Navbar, Nav, Form, FormControl, Button, Container, Row, Col, Modal } from 'react-bootstrap';
+import { Navbar, Nav, Form, FormControl, Button, Container, Row, Col } from 'react-bootstrap';
 import { FaUser, FaShoppingCart, FaSearch } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Card } from 'react-bootstrap';
-import productsData from '../../data/products.json';
 import All from '../Assets/Dropdown/All';
 import Books from '../Assets/Dropdown/Books';
-import Supplies from '../Assets/Dropdown/Supplies';
 import Apparel from '../Assets/Dropdown/Apparel';
 import SportsLeisure from '../Assets/Dropdown/Sports&Leisure';
 import Kitchen from '../Assets/Dropdown/Kitchen';
@@ -23,6 +21,9 @@ export const NavbarHeader = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
   const productsPerPage = 9;
+  const { selectProduct, cartItems } = useProductContext();
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
   useEffect(() => {
     if (products) {
@@ -32,6 +33,10 @@ export const NavbarHeader = () => {
       setFilteredProducts(filtered);
     }
   }, [searchQuery, products]);
+
+  useEffect(() => {
+    setCartItemCount(cartItems.length);
+}, [cartItems]);
 
   const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
 
@@ -62,7 +67,9 @@ export const NavbarHeader = () => {
               <Nav.Link href="/sellers">Sell</Nav.Link>
               <Nav.Link href="#">Watchlist</Nav.Link>
               <Nav.Link href="/profilepage">Profile <FaUser /></Nav.Link>
-              <Nav.Link href="/Basket">Cart <FaShoppingCart /></Nav.Link>
+              <Nav.Link as={Link} to="/Basket">
+              Cart <FaShoppingCart /> {cartItemCount > 0 && <span className="badge bg-secondary">{cartItemCount}</span>}
+            </Nav.Link>
             </Nav>
             <Form className="d-flex" onSubmit={handleSearch}>
               <FormControl
@@ -93,7 +100,7 @@ export const NavbarHeader = () => {
       <Container>
         <Row xs={1} md={3} className='mt-5'>
           {displayedProducts.map(result => (
-            <Col key={result.id} className="mb-3">
+            <Col key={result.ProductID} className="mb-3">
               <Card>
                 <Card.Img
                   variant="top"
@@ -103,13 +110,13 @@ export const NavbarHeader = () => {
                   }}
                 />
                 <Card.Body>
-                  <Card.Title>{result.Name}</Card.Title>
+                  <Card.Title><Link to={`/product/${result.ProductID}`} onClick={() => selectProduct(result)} >{result.Name}</Link></Card.Title>
                   <p>{result.Price}</p>
                   <Card.Text>
                     {result.Description.length > 100 ? `${result.Description.substring(0, 100)}...` : result.Description}
                     {result.Category}
                   </Card.Text>
-                  <Button variant="primary">Add to Cart</Button>
+                  <Link to={`/product/${result.ProductID}`} onClick={() => selectProduct(result)} className='btn btn-primary'>View more</Link>
                 </Card.Body>
               </Card>
             </Col>
