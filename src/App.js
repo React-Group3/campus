@@ -7,6 +7,7 @@ import Basket from './Components/Basket/Basket';
 import Checkout from './pages/checkout/checkout';
 import Profile from './pages/Profile/profilepage';
 import AddItem from './pages/additem/additem';
+import ProductDetail from './Components/Product/Productdetail.jsx';
 import SearchResults from './Components/SearchResults/SearchResults.jsx';
 // import OrderConfirmation from './pages/orderconfirmation/orderconfirmation';<Route path="/orderconfirm" element = {<OrderConfirmation />} />
 import Seller from './pages/seller/seller.jsx';
@@ -31,6 +32,7 @@ function App() {
           <Route path="/additem" element={<AddItem />} />
           <Route path="/SearchResults" element={<SearchResults />} />
           <Route path="/seller" element={<Seller />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
         </Routes>
         </BrowserRouter>
       </div>

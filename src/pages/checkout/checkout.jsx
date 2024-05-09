@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button, Row, Col, ListGroup, Card } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, ListGroup, Card, Alert } from 'react-bootstrap';
+import { useProductContext } from '../../contexts/ProductContext';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe('YOUR_STRIPE_PUBLIC_KEY');
 
 const Checkout = () => {
+  const { cartItems } = useProductContext(); // Fetching cartItems from ProductContext
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [address1, setAddress1] = useState('');
@@ -10,63 +15,37 @@ const Checkout = () => {
   const [postCode, setPostCode] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvc, setCvc] = useState('');
-  const [cartItems, setCartItems] = useState([]); 
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchCartItems();
-  }, []);
+    calculateTotal();
+  }, [cartItems]);
 
-  const fetchCartItems = async () => {
-    try {
-      const response = await fetch('cart.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action: 'fetchCartItems' }),
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setCartItems(data.cartItems);
-    } catch (error) {
-      console.error('There was a problem with your fetch operation:', error);
+  const calculateTotal = () => {
+    const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.price), 0);
+    setTotal(totalPrice);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const stripe = await stripePromise;
+
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: cartItems.map(item => ({
+        price: item.price,
+        quantity: 1,
+      })),
+      mode: 'payment',
+      successUrl: 'https://yourwebsite.com/success',
+      cancelUrl: 'https://yourwebsite.com/canceled',
+    });
+
+    if (error) {
+      console.error('Error:', error);
+      setError('Failed to redirect to checkout. Please try again.');
     }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const data = {
-      name: name,
-      email: email,
-      address1: address1,
-      address2: address2,
-      cardNumber: cardNumber,
-      postCode: postCode,
-      expiryDate: expiryDate,
-      cvc: cvc,
-    };
-    console.log(data);
-    fetch('checkout.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Success:', data);
-        window.location.href = '/order-confirmation';
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  };
-
-  // Calculate total price
-  const total = cartItems.reduce((acc, item) => acc + item.price, 0);
 
   return (
     <>
@@ -107,12 +86,13 @@ const Checkout = () => {
               </Form.Group>
               <Form.Group controlId="formBasicCVC">
                 <Form.Label>CVC</Form.Label>
-                <Form.Control type="text" placeholder="Enter CVC" name="cvc"onChange={(e) => setCvc(e.target.value)}  required />
+                <Form.Control type="text" placeholder="Enter CVC" name="cvc" onChange={(e) => setCvc(e.target.value)} required />
               </Form.Group>
               <Button variant="primary" type="submit">
                 Place Order
               </Button>
             </Form>
+            {error && <Alert variant="danger">{error}</Alert>}
           </Col>
           <Col md={4}>
             <h2>Order Summary</h2>
