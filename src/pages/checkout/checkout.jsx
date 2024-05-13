@@ -3,18 +3,14 @@ import { Container, Form, Button, Row, Col, ListGroup, Card, Alert } from 'react
 import { useProductContext } from '../../contexts/ProductContext';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('YOUR_STRIPE_PUBLIC_KEY');
+const stripePromise = loadStripe('pk_test_51PEHhaAN06kC7AVBwSkXfnIKrRq948IHgkfzJjF4k0BVply7GSFS4t9vxxtbsAUdtYvwwJlqAoNmhqqKU7VprsmC006iMJpZGX');
 
 const Checkout = () => {
-  const { cartItems } = useProductContext(); // Fetching cartItems from ProductContext
+  const { cartItems } = useProductContext();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [address1, setAddress1] = useState('');
-  const [address2, setAddress2] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
+  const [address, setAddress] = useState('');
   const [postCode, setPostCode] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvc, setCvc] = useState('');
   const [total, setTotal] = useState(0);
   const [error, setError] = useState(null);
 
@@ -23,94 +19,102 @@ const Checkout = () => {
   }, [cartItems]);
 
   const calculateTotal = () => {
-    const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.price), 0);
+    const totalPrice = cartItems.reduce((acc, item) => {
+      return acc + parseFloat(item.Price);
+    }, 0);
     setTotal(totalPrice);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const stripe = await stripePromise;
 
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: cartItems.map(item => ({
-        price: item.price,
-        quantity: 1,
-      })),
-      mode: 'payment',
-      successUrl: 'https://yourwebsite.com/success',
-      cancelUrl: 'https://yourwebsite.com/canceled',
-    });
+    try {
+      const requestBody = {
+        name: name,
+        email: email,
+        address: address,
+        postCode: postCode,
+        cartItems: cartItems.map(item => ({
+          productId: item.ProductID,
+          productName: item.Name,
+          price: parseFloat(item.Price),
+        }))
+      };
 
-    if (error) {
+      const response = await fetch('http://localhost:8000/create-checkout-session.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const { sessionId, error } = await response.json();
+
+      if (error) {
+        console.error('Error:', error);
+        setError('Failed to redirect to checkout. Please try again.');
+      } else {
+        const stripe = await stripePromise;
+        const result = await stripe.redirectToCheckout({
+          sessionId: sessionId
+        });
+
+        if (result.error) {
+          console.error('Error:', result.error);
+          setError('Failed to redirect to checkout. Please try again.');
+        }
+      }
+    } catch (error) {
       console.error('Error:', error);
       setError('Failed to redirect to checkout. Please try again.');
     }
   };
 
   return (
-    <>
-      <Container className='w-75 my-5'>
-        <Row>
-          <Col md={8}>
-            <Form onSubmit={handleSubmit}>
-              <h2>Billing Information</h2>
-              <Form.Group controlId="formBasicName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter your name" name="name" onChange={(e) => setName(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" placeholder="Enter your email" name="email" onChange={(e) => setEmail(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicAddress">
-                <Form.Label>Address 1</Form.Label>
-                <Form.Control type="text" placeholder="Enter your address" name="address1" onChange={(e) => setAddress1(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicAddress">
-                <Form.Label>Address 2</Form.Label>
-                <Form.Control type="text" placeholder="Enter your address" name="address2" onChange={(e) => setAddress2(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicAddress">
-                <Form.Label>Postal Code</Form.Label>
-                <Form.Control type="text" placeholder="Enter your post code" name="postCode" onChange={(e) => setPostCode(e.target.value)} required />
-              </Form.Group>
-            
-              <h2>Payment Method</h2>
-              <Form.Group controlId="formBasicCardNumber">
-                <Form.Label>Card Number</Form.Label>
-                <Form.Control type="text" placeholder="Enter your card number" name="cardNumber" onChange={(e) => setCardNumber(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicExpiryDate">
-                <Form.Label>Expiry Date</Form.Label>
-                <Form.Control type="text" placeholder="Enter expiry date" name="expiryDate" onChange={(e) => setExpiryDate(e.target.value)} required />
-              </Form.Group>
-              <Form.Group controlId="formBasicCVC">
-                <Form.Label>CVC</Form.Label>
-                <Form.Control type="text" placeholder="Enter CVC" name="cvc" onChange={(e) => setCvc(e.target.value)} required />
-              </Form.Group>
-              <Button variant="primary" type="submit">
-                Place Order
-              </Button>
-            </Form>
-            {error && <Alert variant="danger">{error}</Alert>}
-          </Col>
-          <Col md={4}>
-            <h2>Order Summary</h2>
-            <ListGroup variant="flush">
-              {cartItems.map(item => (
-                <ListGroup.Item key={item.id}>{item.name} - ${item.price}</ListGroup.Item>
-              ))}
-            </ListGroup>
-            <Card className="mt-3">
-              <Card.Body>
-                <Card.Title>Total</Card.Title>
-                <Card.Text>${total.toFixed(2)}</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </>
+    <Container className='my-5'>
+      <Row>
+        <Col md={6}>
+          <h2>Billing Information</h2>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formBasicName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control type="text" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} required />
+            </Form.Group>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </Form.Group>
+            <Form.Group controlId="formBasicAddress">
+              <Form.Label>Address</Form.Label>
+              <Form.Control type="text" placeholder="Enter your address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+            </Form.Group>
+            <Form.Group controlId="formBasicPostCode">
+              <Form.Label>Post Code</Form.Label>
+              <Form.Control type="text" placeholder="Enter your post code" value={postCode} onChange={(e) => setPostCode(e.target.value)} required />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Place Order
+            </Button>
+          </Form>
+          {error && <Alert variant="danger">{error}</Alert>}
+        </Col>
+        <Col md={6}>
+          <h2>Order Summary</h2>
+          <ListGroup variant="flush">
+            {cartItems.map(item => (
+              <ListGroup.Item key={item.ProductID}>{item.Name} - ${item.Price}</ListGroup.Item>
+            ))}
+          </ListGroup>
+          <Card className="mt-3">
+            <Card.Body>
+              <Card.Title>Total</Card.Title>
+              <Card.Text>${total.toFixed(2)}</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
