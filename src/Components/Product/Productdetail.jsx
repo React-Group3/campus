@@ -18,8 +18,8 @@ const ProductDetail = () => {
 
     return (
         <>
+            <Container>
             <Navbar bg="light" expand="lg" className="mb-3">
-                <Container>
                     <Navbar.Brand href="/">Campus<span style={{ color: 'red' }}>Price</span></Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
@@ -35,9 +35,8 @@ const ProductDetail = () => {
                             </Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
-                </Container>
             </Navbar>
-            <Container className="mt-3">
+            <div className="mt-3">
                 {selectedProduct && (
                     <Card>
                         <Row className="g-0">
@@ -61,6 +60,7 @@ const ProductDetail = () => {
                         </Row>
                     </Card>
                 )}
+            </div>
             </Container>
         </>
     );

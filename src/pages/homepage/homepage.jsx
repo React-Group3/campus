@@ -6,7 +6,7 @@ import { Footer } from '../../Components/Footer/Footer'
 export const Homepage = () => {
   return (
     <div>
-        <NavbarHeader />
+        {/* <NavbarHeader /> */}
         <Main />
         
     </div>
